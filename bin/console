@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+
+<?php
+
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\DependencyInjection\AddConsoleCommandPass;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Symfony\Component\Config\FileLocator;
+
+
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+
+
+$containerBuilder = new ContainerBuilder();
+
+$fileLocator = new FileLocator(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config');
+$loader = new PhpFileLoader($containerBuilder, $fileLocator);
+$loader->load('parameters.php');
+
+$containerBuilder->addCompilerPass(new AddConsoleCommandPass());
+$containerBuilder->compile();
+
+$commandLoader = $containerBuilder->get('console.command_loader');
+
+$application = new Application();
+
+//$application->add(new \Commands\TestCommand());
+$application->setCommandLoader($commandLoader);
+
+$application->run();
